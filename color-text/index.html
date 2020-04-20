@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+   
+    <select name="ab" id="colorSelector" onchange="if (this.selectedIndex) changeFontColor();">
+        <option value="-1">--</option>
+        <option value="1">검정</option> 
+        <option value="2">녹색</option>
+        <option value="3">빨간</option>
+        <option value="4">파란</option>
+    </select>
+
+    <h1>Tommy the cat</h1>
+
+    <p class="clickable">Well I remember it as though it were a meal ago...</p>
+
+    <p class="clickable">Said Tommy the Cat as he reeled back to clear whatever foreign matter
+        may have nestled its way into his mighty throat. Many a fat alley rat
+        had met its demise while staring point blank down the cavernous barrel of
+        this awesome prowling machine. Truly a wonder of nature this urban
+        predator — Tommy the cat had many a story to tell. But it was a rare
+        occasion such as this that he did.
+    </p>
+    <div  class="clickable" id="text-box" style="width: 700px; border:1px solid black">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum</div>
+    <div id="match">
+        <h2>매칭되는 단어 리스트 보여줌</h2>
+        <ol>
+            <li>1.html</li>
+        </ol>
+
+
+    </div>
+    <script>
+        var fontColor = "green";
+
+
+        function changeFontColor(){
+            fontColor = "red";
+        };
+
+        function insertSpan(_selectedText, _fontColor){
+                var span = document.createElement('span');
+                span.style.color=_fontColor;
+                span.className = 'selected-text';
+                span.appendChild(_selectedText);
+                return span;
+        };
+
+        function getCaretCharacterOffsetWithin(element) {
+            var caretOffset = 0;
+            var doc = element.ownerDocument || element.document;
+            var win = doc.defaultView || doc.parentWindow;
+            var sel;
+            if (typeof win.getSelection != "undefined") {
+                sel = win.getSelection();
+                if (sel.rangeCount > 0) {
+                    var range = win.getSelection().getRangeAt(0);
+                    var preCaretRange = range.cloneRange();
+                    preCaretRange.selectNodeContents(element);
+                    preCaretRange.setEnd(range.endContainer, range.endOffset);
+                    caretOffset = preCaretRange.toString().length;
+                }
+            } else if ((sel = doc.selection) && sel.type != "Control") {
+                var textRange = sel.createRange();
+                var preCaretTextRange = doc.body.createTextRange();
+                preCaretTextRange.moveToElementText(element);
+                preCaretTextRange.setEndPoint("EndToEnd", textRange);
+                caretOffset = preCaretTextRange.text.length;
+            }
+            var start = caretOffset - sel.toString().length;
+            var end = caretOffset - 1;
+            if (start != end && end > start) {
+                // Highlight the text
+                console.log(start,end);
+                var selectedText = range.extractContents();
+                var text_value = selectedText.textContent;
+                
+                range.insertNode(insertSpan(selectedText, fontColor));
+                //document.getElementsByTagName("span")[0].append(start + ",&nbsp;" + end);
+                return caretOffset;
+            }
+        };
+
+
+        function getWord(e) {
+            var selection = window.getSelection();
+            if (!selection || selection.rangeCount < 1) return true;
+            var range = selection.getRangeAt(0);
+            var node = selection.anchorNode;
+            var word_regexp = /^\w*$/;
+            
+
+            // Extend the range backward until it matches word beginning
+            while ((range.startOffset > 0) && range.toString().match(word_regexp)) {
+                range.setStart(node, (range.startOffset - 1));
+            }
+            // Restore the valid word match after overshooting
+            if (!range.toString().match(word_regexp)) {
+                range.setStart(node, range.startOffset + 1);
+            }
+
+            // Extend the range forward until it matches word ending
+            while ((range.endOffset < node.length) && range.toString().match(word_regexp)) {
+                range.setEnd(node, range.endOffset + 1);
+            }
+            // Restore the valid word match after overshooting
+            if (!range.toString().match(word_regexp)) {
+                range.setEnd(node, range.endOffset - 1);
+            }
+
+            var word = range.toString();
+            console.log(word);
+        }
+        
+        var elements = document.getElementsByClassName("clickable");
+
+        for (var i = 0; i < elements.length; i++) {
+            elements[i].addEventListener('click', getWord, false);
+        }
+
+        document.addEventListener("click", function() {
+            var el = document.getElementById("text-box");
+            getCaretCharacterOffsetWithin(el);
+            
+        })
+       
+    </script>
+</body>
+
+</html>
